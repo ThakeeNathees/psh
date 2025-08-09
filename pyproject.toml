@@ -1,7 +1,7 @@
 [project]
-name = "psh"
-version = "0.1.0"
-description = "Shell scripting with python"
+name = "py-shell-runner"
+version = "0.1.0-dev"
+description = "Python for shell scripting"
 requires-python = ">=3.12"
 dependencies = [
     "colorama>=0.4.6",
@@ -18,14 +18,14 @@ dev = [
 ]
 
 [project.scripts]
-psh = "psh.__main__:main"
+psh = "pyshrun.__main__:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["psh*"]
+include = ["pyshrun*"]
 
 # Tool configurations
 [tool.black]
