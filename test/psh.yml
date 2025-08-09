@@ -1,0 +1,5 @@
+
+commands:
+  ping: ping google.com
+  build: echo Building project...
+  clean: python -c "print('Cleaning project')"
