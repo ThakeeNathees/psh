@@ -1,6 +1,7 @@
 """Module containing common helper functions for the scripting."""
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -18,7 +19,6 @@ def cmd(command: str, throw: bool = False) -> int:
     proc = subprocess.Popen(command, shell=True, cwd=_cd)
     return_code = proc.wait()
     if throw and return_code != 0:
-        print(f'{Fore.RED}Command failed with exit code {return_code}: "{command}"')
         raise Exception(f"Command failed with exit code {return_code}: {command}")
     return return_code
 
@@ -29,9 +29,6 @@ def cmd_s(command: str, throw: bool = False) -> str:
         command, shell=True, cwd=_cd, capture_output=True, text=True
     )
     if throw and result.returncode != 0:
-        print(
-            f'{Fore.RED}Command failed with exit code {result.returncode}: "{command}"'
-        )
         raise Exception(f"Command failed with exit code {result.returncode}: {command}")
     return result.stdout
 
@@ -67,6 +64,12 @@ def rmdir(dir_path: Path, throw: bool = False) -> None:
             raise FileNotFoundError(
                 f"Directory not found or is not a directory: {dir_path}"
             )
+
+
+def which(command: str) -> Path | None:
+    """Find the path to an executable command."""
+    wh = shutil.which(command)
+    return Path(wh) if wh else None
 
 
 def has_env(var_name: str) -> bool:

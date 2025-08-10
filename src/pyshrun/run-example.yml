@@ -1,48 +1,55 @@
-# A npm like run config for `py-shell-runner` package
-# Install with `uv add py-shell-runner` or `pip install py-shell-runner`
-# Run commands with `run build`, `run clean`, etc.
+# py-shell-runner is an npm like run configuration and shell scripting package.
+# you can define your commands in a run.yml file and simply run with the run
+# command, like `run build`, `run clean`, etc.
+#
+#       ______   __    __  _______
+#      /      \ /  |  /  |/       \
+#     /$$$$$$  |$$ |  $$ |$$$$$$$  |
+#     $$ |  $$/ $$ |  $$ |$$ |  $$ |
+#     $$ |      $$ \__$$ |$$ |  $$ |
+#     $$ |      $$    $$/ $$ |  $$ |
+#     $$/        $$$$$$/  $$/   $$/
+#
+#
+# Getting started:
+#
+#   # Install with any of the bellow command.
+#   .---------------------------------------.
+#   | uv add py-shell-runner                |
+#   | pip install py-shell-runner           |
+#   '---------------------------------------'
+#
+#   # Create a `run.yml` file in your project root
+#     run --init
+#
+#   # Run the commands defined in `run.yml`
+#     run build
+#
 
 commands:
 
-  # Set of build commands
-  build:
-    - echo Building project
-    - echo Running more commands
-    - ensure_env:
-        - SOME_BUILD_VAR1
-        - SOME_BUILD_VAR2
-      cmd: echo building with env
-
-  # A simple command
-  clean: echo Cleaning up
-
-  # A command object that checks for env
-  deploy:
-    set_env:
-      SOME_API_KEY: SOME_API_KEY
-      BACKEND_URL: BACKEND_URL
-    ensure_env:
-      - SOME_API_KEY
-      - BACKEND_URL
-    throw: true  # Throws error / exit if any command fails
-    cmd:
-      - echo Deploying application
-      - echo Running more commands
-
-  # Nested commands
-  git:
-    ammend:
+  push:
+      - desc: Commit and push changes
+      - throw: true
+      - pytest
       - git add .
-      - git commit --amend
+      - git commit
+      - git push
 
-    fpush:
-      - git push --force
 
-    push:
-      - throw: true  # Throw config can directly added to the list
-      - git add .    # Even in the middle it can be added and that
-      - git commit   # changes the throw config for the rest of the
-      - git push     # commands.
-      - throw: false
-      - rm -r will/not/fail
-      - rm -r if/dir/not/exists
+  publish:
+      desc: Build and publish the package
+      ensure_env:
+          - UV_PUBLISH_TOKEN
+      cmd:
+          - rm -r dist
+          - throw: true
+          - pytest
+          - uv build
+          - uv publish
+
+
+  clean:
+      - desc: Clean up build artifacts
+      - rm -r dist
+      - rm -r src/py_shell_runner.egg-info

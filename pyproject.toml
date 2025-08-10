@@ -1,8 +1,9 @@
 [project]
 name = "py-shell-runner"
-version = "0.1.0-dev3"
+version = "0.1.0-dev4"
 description = "Python for shell scripting"
 requires-python = ">=3.12"
+readme = "README.md"
 
 dependencies = [
     "colorama>=0.4.6",

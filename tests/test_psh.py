@@ -7,7 +7,7 @@ from pyshrun import project_root, sh
 class TestPsh(TestCase):
 
     def test_project_root(self) -> None:
-        PROJECT_ROOT = project_root("test")
+        PROJECT_ROOT = project_root("tests")
         test_dir = Path(__file__).parent
         self.assertEqual(PROJECT_ROOT, test_dir)
 
@@ -24,7 +24,7 @@ class TestPsh(TestCase):
         try:
             this_dir = Path(__file__).parent
             sh.cd(this_dir)
-            output = sh.cmd_s("psh build").strip()
+            output = sh.cmd_s("run build").strip()
             self.assertEqual(output, "Building project...")
         except Exception as e:
             self.fail(f"Command execution failed with error: {e}")

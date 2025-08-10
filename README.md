@@ -1,3 +1,7 @@
+
+## run.yml
+
+```yaml
 # py-shell-runner is an npm like run configuration and shell scripting package.
 # you can define your commands in a run.yml file and simply run with the run
 # command, like `run build`, `run clean`, etc.
@@ -29,12 +33,12 @@
 commands:
 
   push:
-    - desc: Commit and push changes
-    - throw: true
-    - pytest
-    - git add .
-    - git commit
-    - git push
+      - desc: Commit and push changes
+      - throw: true
+      - pytest
+      - git add .
+      - git commit
+      - git push
 
 
   publish:
@@ -53,3 +57,4 @@ commands:
       - desc: Clean up build artifacts
       - rm -r dist
       - rm -r src/py_shell_runner.egg-info
+```
