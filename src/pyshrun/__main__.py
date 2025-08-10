@@ -1,12 +1,13 @@
 import sys
+from importlib.metadata import version
 from pathlib import Path
+
 from colorama import Fore, Style
-import yaml
 from pydantic import BaseModel
 
-from .pshconfig import PshConfig
+from .parser import RunConfig, parse_config
 
-PSH_CONFIG_FILE_NAME = "psh.yml"
+PSH_CONFIG_FILE_NAME = "run.yml"
 THIS_DIR = Path(__file__).parent
 
 
@@ -14,19 +15,30 @@ THIS_DIR = Path(__file__).parent
 # Main Function
 # -----------------------------------------------------------------------------
 
+
 def print_usage() -> None:
     """Print the usage information for the script."""
     psh_options = [
         CmdOption(short="-h", long="--help", desc="Show this help message"),
         CmdOption(short="-i", long="--init", desc="Initialize psh.yml config file"),
+        CmdOption(short="-v", long="--version", desc="Show the version of the package"),
     ]
-    max_opt_len = max(option.option_len() for option in psh_options)
+    print(f"{Fore.GREEN}Usage:{Style.RESET_ALL} psh [options] <command>\n")
 
-    print(f"{Fore.GREEN}Usage:{Style.RESET_ALL} psh [options] <command>")
-    print(f"{Fore.GREEN}Commands:{Style.RESET_ALL}")
+    print(f"{Fore.GREEN}Options:{Style.RESET_ALL}")
+
+    max_opt_len = max(len(option.long) for option in psh_options)
     for option in psh_options:
-        print(option.as_str(max_opt_len))
+        params_str = " " + " ".join(option.params) if option.params else ""
+        print(
+            f"  {Fore.BLUE}{option.short.ljust(2)}{Style.RESET_ALL}, "
+            f"{Fore.BLUE}{option.long.ljust(max_opt_len)}{Style.RESET_ALL}"
+            f"{params_str}  {option.desc}"
+        )
     print()
+
+    config: RunConfig = _load_config()
+    config.reg.print_usage()
 
 
 def main() -> None:
@@ -37,10 +49,8 @@ def main() -> None:
         print_usage()
         return
 
-    arg = args.pop(0)
-
     # psh specific command
-    match arg:
+    match args[0]:
         case "-h" | "--help":
             print_usage()
             return
@@ -49,35 +59,27 @@ def main() -> None:
             _psh_init()
             return
 
+        case "-v" | "--version":
+            print(version("py-shell-runner"))
+            return
+
     # Custom user command
-    config: PshConfig = _load_config()
-    config.execute(arg)
+    config: RunConfig = _load_config()
+    config.execute(args)
 
 
 # -----------------------------------------------------------------------------
 # Internal
 # -----------------------------------------------------------------------------
 
+
 class CmdOption(BaseModel):
     """Command-line argument model."""
+
     short: str = ""
     long: str = ""
     desc: str = ""
     params: list[str] | None = None
-
-    def option_len(self) -> int:
-        """Return the length of the option str witout the desc."""
-        params_str = " " + " ".join(self.params) if self.params else ""
-        return len(f"  {self.short}, {self.long}{params_str}")
-
-    def as_str(self, max_opt_len: int) -> str:
-        """Return the option as a formatted string."""
-        params_str = " " + " ".join(self.params) if self.params else ""
-        return (
-            f"  {Fore.BLUE}{self.short.ljust(2)}{Style.RESET_ALL}, "
-            f"{Fore.BLUE}{self.long.ljust(max_opt_len - 2)}{Style.RESET_ALL}"
-            f"{params_str}  {self.desc}"
-        )
 
 
 def _psh_init() -> None:
@@ -93,21 +95,14 @@ def _psh_init() -> None:
     print(f"{Fore.GREEN}Created new configuration file: {config_file_path}")
 
 
-def _load_config() -> PshConfig:
+def _load_config() -> RunConfig:
     """Load the configuration from the specified YAML files."""
     config_file_path = Path(PSH_CONFIG_FILE_NAME)
     if not config_file_path.exists():
         print(f"{Fore.RED}No configuration file found: {PSH_CONFIG_FILE_NAME}")
         exit(1)
+    return parse_config(config_file_path)
 
-    with open(config_file_path, "r") as file:
-        try:
-            config_data = yaml.safe_load(file)
-            config = PshConfig.model_validate(config_data)
-        except Exception as e:
-            print(f"{Fore.RED}Error loading configuration: {e}")
-            exit(1)
-        return config
 
 # -----------------------------------------------------------------------------
 # Entrypoint

@@ -1,6 +1,6 @@
-# A npm like command config for `py-shell-runner` package
+# A npm like run config for `py-shell-runner` package
 # Install with `uv add py-shell-runner` or `pip install py-shell-runner`
-# Run commands with `psh build`, `psh clean`, etc.
+# Run commands with `run build`, `run clean`, etc.
 
 commands:
 
@@ -29,11 +29,20 @@ commands:
       - echo Deploying application
       - echo Running more commands
 
-  push:
-    - throw: true  # Throw config can directly added to the list
-    - git add .    # Even in the middle it can be added and that
-    - git commit   # changes the throw config for the rest of the
-    - git push     # commands.
-    - throw: false
-    - rm -r will/not/fail
-    - rm -r if/dir/not/exists
+  # Nested commands
+  git:
+    ammend:
+      - git add .
+      - git commit --amend
+
+    fpush:
+      - git push --force
+
+    push:
+      - throw: true  # Throw config can directly added to the list
+      - git add .    # Even in the middle it can be added and that
+      - git commit   # changes the throw config for the rest of the
+      - git push     # commands.
+      - throw: false
+      - rm -r will/not/fail
+      - rm -r if/dir/not/exists

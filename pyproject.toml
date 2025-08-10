@@ -1,6 +1,6 @@
 [project]
 name = "py-shell-runner"
-version = "0.1.0-dev1"
+version = "0.1.0-dev3"
 description = "Python for shell scripting"
 requires-python = ">=3.12"
 
@@ -16,6 +16,7 @@ dev = [
     "pytest-asyncio>=1.1.0",
     "types-colorama>=0.4.15.20250801",
     "types-pyyaml>=6.0.12.20250809",
+    "flake8>=7.1.0",
 ]
 
 [project.urls]
@@ -23,7 +24,7 @@ repository = "https://github.com/ThakeeNathees/pyshrun"
 
 
 [project.scripts]
-psh = "pyshrun.__main__:main"
+run = "pyshrun.__main__:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -76,7 +77,6 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
-plugins = ["pydantic.mypy"]
 disable_error_code = ["misc"]
 
 [tool.pytest.ini_options]
@@ -97,6 +97,10 @@ omit = [
     "*/venv/*",
     "*/.venv/*"
 ]
+
+[tool.flake8]
+max-line-length = 120
+extend-ignore = ["F403", "F405", "E731"]
 
 [tool.coverage.report]
 exclude_lines = [

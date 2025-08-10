@@ -3,8 +3,8 @@
 import os
 import subprocess
 from pathlib import Path
-from colorama import Fore
 
+from colorama import Fore
 
 _cd: Path = Path.cwd()
 
@@ -18,7 +18,7 @@ def cmd(command: str, throw: bool = False) -> int:
     proc = subprocess.Popen(command, shell=True, cwd=_cd)
     return_code = proc.wait()
     if throw and return_code != 0:
-        print(f"{Fore.RED}Command failed with exit code {return_code}: \"{command}\"")
+        print(f'{Fore.RED}Command failed with exit code {return_code}: "{command}"')
         raise Exception(f"Command failed with exit code {return_code}: {command}")
     return return_code
 
@@ -29,7 +29,9 @@ def cmd_s(command: str, throw: bool = False) -> str:
         command, shell=True, cwd=_cd, capture_output=True, text=True
     )
     if throw and result.returncode != 0:
-        print(f'{Fore.RED}Command failed with exit code {result.returncode}: "{command}"')
+        print(
+            f'{Fore.RED}Command failed with exit code {result.returncode}: "{command}"'
+        )
         raise Exception(f"Command failed with exit code {result.returncode}: {command}")
     return result.stdout
 
@@ -62,7 +64,9 @@ def rmdir(dir_path: Path, throw: bool = False) -> None:
     else:
         print(f"{Fore.RED}Directory not found or is not a directory: {dir_path}")
         if throw:
-            raise FileNotFoundError(f"Directory not found or is not a directory: {dir_path}")
+            raise FileNotFoundError(
+                f"Directory not found or is not a directory: {dir_path}"
+            )
 
 
 def has_env(var_name: str) -> bool:

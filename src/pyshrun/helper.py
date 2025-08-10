@@ -1,8 +1,23 @@
-from __future__ import annotations
-
 import inspect
 import os
 from pathlib import Path
+
+from colorama import Fore, Style
+
+
+def print_success(msg: str) -> None:
+    """Print a success message with a green check mark."""
+    print(f"{Fore.GREEN}✅ {msg}{Style.RESET_ALL}")
+
+
+def print_error(msg: str) -> None:
+    """Print a failure message with a red cross mark."""
+    print(f"{Fore.RED}❌ {msg}{Style.RESET_ALL}")
+
+
+def print_warning(msg: str) -> None:
+    """Print a warning message with a yellow triangle."""
+    print(f"{Fore.YELLOW}⚠️ {msg}{Style.RESET_ALL}")
 
 
 def project_root(proj_dir_name: str) -> Path:

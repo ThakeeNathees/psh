@@ -1,7 +1,7 @@
-from unittest import TestCase
 from pathlib import Path
+from unittest import TestCase
 
-from pyshrun import sh, project_root
+from pyshrun import project_root, sh
 
 
 class TestPsh(TestCase):
@@ -28,4 +28,3 @@ class TestPsh(TestCase):
             self.assertEqual(output, "Building project...")
         except Exception as e:
             self.fail(f"Command execution failed with error: {e}")
-
