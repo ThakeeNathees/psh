@@ -1,5 +1,6 @@
 """Module containing common helper functions for the scripting."""
 
+import os
 import subprocess
 from pathlib import Path
 from colorama import Fore
@@ -17,7 +18,7 @@ def cmd(command: str, throw: bool = False) -> int:
     proc = subprocess.Popen(command, shell=True, cwd=_cd)
     return_code = proc.wait()
     if throw and return_code != 0:
-        print(f"{Fore.RED}Command failed with exit code {return_code}: {command}")
+        print(f"{Fore.RED}Command failed with exit code {return_code}: \"{command}\"")
         raise Exception(f"Command failed with exit code {return_code}: {command}")
     return return_code
 
@@ -62,3 +63,20 @@ def rmdir(dir_path: Path, throw: bool = False) -> None:
         print(f"{Fore.RED}Directory not found or is not a directory: {dir_path}")
         if throw:
             raise FileNotFoundError(f"Directory not found or is not a directory: {dir_path}")
+
+
+def has_env(var_name: str) -> bool:
+    """Check if an environment variable is set."""
+    return os.getenv(var_name) is not None
+
+
+def set_env(var_name: str, value: str) -> None:
+    """Set an environment variable."""
+    if has_env(var_name):
+        print(f"{Fore.YELLOW}Environment variable {var_name} already set, overwriting.")
+    os.environ[var_name] = value
+
+
+def unset_env(var_name: str) -> None:
+    """Unset an environment variable."""
+    os.environ.pop(var_name, None)

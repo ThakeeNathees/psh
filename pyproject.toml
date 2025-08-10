@@ -1,8 +1,9 @@
 [project]
 name = "py-shell-runner"
-version = "0.1.0-dev"
+version = "0.1.0-dev1"
 description = "Python for shell scripting"
 requires-python = ">=3.12"
+
 dependencies = [
     "colorama>=0.4.6",
     "pydantic>=2.11.7",
@@ -16,6 +17,10 @@ dev = [
     "types-colorama>=0.4.15.20250801",
     "types-pyyaml>=6.0.12.20250809",
 ]
+
+[project.urls]
+repository = "https://github.com/ThakeeNathees/pyshrun"
+
 
 [project.scripts]
 psh = "pyshrun.__main__:main"

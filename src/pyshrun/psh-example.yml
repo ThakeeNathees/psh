@@ -1,0 +1,39 @@
+# A npm like command config for `py-shell-runner` package
+# Install with `uv add py-shell-runner` or `pip install py-shell-runner`
+# Run commands with `psh build`, `psh clean`, etc.
+
+commands:
+
+  # Set of build commands
+  build:
+    - echo Building project
+    - echo Running more commands
+    - ensure_env:
+        - SOME_BUILD_VAR1
+        - SOME_BUILD_VAR2
+      cmd: echo building with env
+
+  # A simple command
+  clean: echo Cleaning up
+
+  # A command object that checks for env
+  deploy:
+    set_env:
+      SOME_API_KEY: SOME_API_KEY
+      BACKEND_URL: BACKEND_URL
+    ensure_env:
+      - SOME_API_KEY
+      - BACKEND_URL
+    throw: true  # Throws error / exit if any command fails
+    cmd:
+      - echo Deploying application
+      - echo Running more commands
+
+  push:
+    - throw: true  # Throw config can directly added to the list
+    - git add .    # Even in the middle it can be added and that
+    - git commit   # changes the throw config for the rest of the
+    - git push     # commands.
+    - throw: false
+    - rm -r will/not/fail
+    - rm -r if/dir/not/exists

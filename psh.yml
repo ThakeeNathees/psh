@@ -1,0 +1,24 @@
+# A npm like command config for `py-shell-runner` package
+# Install with `uv add py-shell-runner` or `pip install py-shell-runner`
+# Run commands with `psh build`, `psh clean`, etc.
+
+commands:
+
+  push:
+    - throw: true
+    - git add .
+    - git commit
+    - git push
+
+  publish:
+      ensure_env:
+          - UV_PUBLISH_TOKEN
+      throw: true
+      cmd:
+          - rm -r dist
+          - uv build
+          - uv publish
+
+  clean:
+      - rm -r dist
+      - rm -r src/py_shell_runner.egg-info
