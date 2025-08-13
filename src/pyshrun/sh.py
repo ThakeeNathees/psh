@@ -42,6 +42,11 @@ def cd(path: Path) -> int:
     return 1
 
 
+def pwd() -> Path:
+    """Get the current working directory."""
+    return _cd
+
+
 def rm(file_path: Path, throw: bool = False) -> None:
     """Remove a file not directory."""
     if file_path.exists() and not file_path.is_dir():
@@ -75,6 +80,11 @@ def which(command: str) -> Path | None:
 def has_env(var_name: str) -> bool:
     """Check if an environment variable is set."""
     return os.getenv(var_name) is not None
+
+
+def get_env(var_name: str) -> str | None:
+    """Get the value of an environment variable."""
+    return os.getenv(var_name)
 
 
 def set_env(var_name: str, value: str) -> None:

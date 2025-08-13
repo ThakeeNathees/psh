@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from colorama import Fore, Style
 
@@ -23,6 +24,11 @@ class ThrowConfig(ConfigCmd):
 @dataclass
 class DescConfig(ConfigCmd):
     pass
+
+
+@dataclass
+class CwdConfig(ConfigCmd):
+    cwd: Path = Path.cwd()
 
 
 @dataclass
@@ -68,6 +74,7 @@ class CommandRegistry:
 @dataclass
 class CommandObj(Command):
     cmd: "Command | CommandRegistry" = field(default_factory=Command)
+    cwd: Path | None = None
     ensure_env: set[str] = field(default_factory=set)
     set_env: dict[str, str] = field(default_factory=dict)
     throw: bool | None = None
@@ -77,6 +84,7 @@ class CommandObj(Command):
 class ExecCtx:
     args: list[str]
     throw: bool = False
+    cwd: Path | None = None
 
     def get_command(self, reg: CommandRegistry) -> Command:
         if len(self.args) == 0:
@@ -98,31 +106,46 @@ class ExecCtx:
 class RunConfig:
     reg: CommandRegistry = field(default_factory=CommandRegistry)
 
+    def override(self, other: "RunConfig") -> "RunConfig":
+        """Override commands in the registry with the other registry."""
+        self.reg.commands.update(other.reg.commands)
+        return self
+
     def execute(self, args: list[str]) -> None:
         try:
-            ctx = ExecCtx(args=args)
+            ctx = ExecCtx(args=args, cwd=Path.cwd())
             cmd = ctx.get_command(self.reg)
             RunConfig.execute_command(cmd, ctx)
         except Exception:
             pass
 
+    # TODO: Move the execution to a different file and use with ctx: like
+    # way to properly handle exection context instead of setting and undoing
+    # in the finally block, it's a complete mess.
     @staticmethod
     def execute_command(cmd: Command, ctx: ExecCtx) -> None:
+        cwd: Path | None
 
         if isinstance(cmd, ConfigCmd):
             if isinstance(cmd, ThrowConfig):
                 ctx.throw = cmd.throw
             elif isinstance(cmd, DescConfig):
                 pass
+            elif isinstance(cmd, CwdConfig):
+                ctx.cwd = cmd.cwd
 
         elif isinstance(cmd, SimpleCommand):
             sh.cmd(cmd.string, throw=ctx.throw)
 
         elif isinstance(cmd, ListCommands):
             throw = ctx.throw
-            for sub_cmd in cmd.commands:
-                RunConfig.execute_command(sub_cmd, ctx)
-            ctx.throw = throw
+            cwd = ctx.cwd
+            try:
+                for sub_cmd in cmd.commands:
+                    RunConfig.execute_command(sub_cmd, ctx)
+            finally:
+                ctx.throw = throw
+                ctx.cwd = cwd
 
         elif isinstance(cmd, CommandObj):
             for key, value in cmd.set_env.items():
@@ -133,14 +156,21 @@ class RunConfig:
                     print(f'While executing command: "{cmd}"')
                     exit(1)
             throw = ctx.throw
+            cwd = ctx.cwd
             ctx.throw = cmd.throw if cmd.throw is not None else ctx.throw
+            ctx.cwd = cmd.cwd if cmd.cwd is not None else ctx.cwd
             # ------------------------------------------
-            if isinstance(cmd.cmd, Command):
-                RunConfig.execute_command(cmd.cmd, ctx)
-            elif isinstance(cmd.cmd, CommandRegistry):
-                sub_cmd = ctx.get_command(cmd.cmd)
-                RunConfig.execute_command(sub_cmd, ctx)
+            try:
+                if ctx.cwd is not None:
+                    sh.cd(ctx.cwd)
+                if isinstance(cmd.cmd, Command):
+                    RunConfig.execute_command(cmd.cmd, ctx)
+                elif isinstance(cmd.cmd, CommandRegistry):
+                    sub_cmd = ctx.get_command(cmd.cmd)
+                    RunConfig.execute_command(sub_cmd, ctx)
             # ------------------------------------------
-            ctx.throw = throw
+            finally:
+                ctx.throw = throw
+                ctx.cwd = cwd
             for key in cmd.set_env.keys():
                 sh.unset_env(key)

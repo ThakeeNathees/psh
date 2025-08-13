@@ -1,12 +1,13 @@
 [project]
 name = "py-shell-runner"
-version = "0.1.0-dev4"
+version = "0.1.0-dev6"
 description = "Python for shell scripting"
 requires-python = ">=3.12"
 readme = "README.md"
 
 dependencies = [
     "colorama>=0.4.6",
+    "platformdirs>=4.3.8",
     "pydantic>=2.11.7",
     "pyyaml>=6.0.2",
 ]
@@ -29,10 +30,14 @@ run = "pyshrun.__main__:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pyshrun*"]
+
+[tool.setuptools.package-data]
+pyshrun = ["run-example.yml"]
 
 # Tool configurations
 [tool.black]
